@@ -1,6 +1,20 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+The project is a simple web3 authentication app using NextAuth.js, RainbowKit, SIWE (Sign in with Ethereum) and Supabase.
+
 ## Getting Started
+
+### Prerequisites
+
+- Setup .env file with the following variables:
+  - NEXTAUTH_URL
+  - NEXT_PUBLIC_PROJECT_ID
+  - NEXT_PUBLIC_SUPABASE_ANON_KEY
+  - SUPABASE_URL
+  - SUPABASE_SERVICE_ROLE_KEY
+
+- Setup Supabase with the following tables:
+  - users (requires address, alias, avatar, created_at, updated_at)
 
 First, run the development server:
 

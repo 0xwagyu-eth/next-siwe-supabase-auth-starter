@@ -31,13 +31,13 @@ async function createNewSupabaseUser(address: string, nonceCsrf: string) {
 
   //create a user
   const { data: userSignUpData, error } = await supabase.auth.admin.createUser({
-    email: `${address}@leap.com`,
+    email: `${address}@placeholder.com`, //user can change this email later.
     user_metadata: { address: address },
   });
 
   console.log("userSignUpData", userSignUpData);
-  // 5. insert response into public.users table with id
-
+  
+  //insert response into public.users table with id
   await supabase.from("users").upsert({
     auth: {
       genNonce: nonceCsrf, // update the nonce, so it can't be reused
@@ -91,11 +91,7 @@ export const authOptions: NextAuthOptions = {
 
           console.log("credentials", credentials);
 
-          const siwe = new SiweMessage(
-            JSON.parse(credentials.message) as SiweMessage
-          );
-
-          const nextAuthUrl = new URL(process.env.NEXTAUTH_URL as string);
+          const siwe = new SiweMessage(credentials.message);
 
           const nonceCsrf = await getCsrfToken({
             req: { headers: req.headers },
@@ -109,33 +105,24 @@ export const authOptions: NextAuthOptions = {
             signature: credentials.signature as `0x${string}`,
             nonce: nonceCsrf,
           });
-          //address: siwe.address as `0x${string}`,
 
-          console.log("----siwe.address : \n", siwe.address);
-          console.log(
-            "----siwe.address as `0x${string}`: \n",
-            siwe.address as `0x${string}`
-          );
-          console.log("----isValid : \n", isValid);
+          console.log("SIWE Address:", siwe.address);
+          console.log("SIWE Address (typed):", siwe.address as `0x${string}`);
+          console.log("Signature Valid:", isValid);
 
           if (isValid) {
             console.log("Signature Validated!");
 
-            var parsed = JSON.parse(credentials?.message as string);
             //1. check if the user exists in the database.
             const { data: userExistsData, error: userExistsError } =
               await supabase.from("users").select().eq("address", siwe.address);
 
             if (userExistsData && userExistsData.length > 0) {
-              console.log("userExistsData[0].user.id", userExistsData[0]);
+              console.log("User exists in database", userExistsData[0]);
               return {
                 //chainId, address, userId
                 id: `eip155:${base.id}:${siwe.address}:${userExistsData[0].id}`,
               };
-              /*
-              return {
-                id: `eip155:${result.data.chainId}:${result.data.address}:${userExistsData[0]?.id}`,
-              };*/
             }
             if (!userExistsData || userExistsData.length < 1) {
               if (!nonceCsrf) {
@@ -146,6 +133,10 @@ export const authOptions: NextAuthOptions = {
                 siwe.address,
                 nonceCsrf
               );
+
+              //You could also add address to the user table here if you want to; 
+              //otherwise you can just set later
+
               //return null if no user has been created
               if (!userId || !address) {
                 console.log("No userId or address; returning null.");
@@ -158,65 +149,6 @@ export const authOptions: NextAuthOptions = {
               };
             }
           }
-
-          //const nonce = generateSiweNonce();
-          /*
-          console.log("parsed will be below:");
-          var parsed = JSON.parse(credentials?.message as string);
-          console.log(parsed.address);
-          console.log(parsed);
-          console.log(credentials?.message);
-
-          const result = await siwe.verify({
-            signature: credentials?.signature || "",
-            domain: nextAuthUrl.host,
-            nonce: nonceCsrf,
-          });*/
-
-          /*
-          if (result.success) {
-            console.log("userExistsData967", userExistsData);
-
-            if (!userExistsData || userExistsData.length < 1) {
-              console.log("user does not exist....");
-
-              //create a user
-              const { data: userSignUpData, error } =
-                await supabase.auth.admin.createUser({
-                  email: `${parsed.address}@leap.com`,
-                  user_metadata: { address: parsed.address },
-                });
-
-              console.log("userSignUpData", userSignUpData);
-              // 5. insert response into public.users table with id
-
-              await supabase.from("users").upsert({
-                auth: {
-                  genNonce: nonceCsrf, // update the nonce, so it can't be reused
-                  lastAuth: new Date().toISOString(),
-                  lastAuthStatus: "success",
-                },
-                id: userSignUpData.user?.id, // same uuid as auth.users table
-                address: parsed.address,
-              });
-
-              return {
-                id: `eip155:${result.data.chainId}:${result.data.address}:${userSignUpData.user?.id}`,
-              };
-            }
-
-            //verifiy nonce
-
-            //3.
-
-            console.log(`-------------BREAK-------------`);
-
-            /*let UserRecord = await getUserByWallet(result.data.address || "");
-            if (UserRecord.length < 1) {
-              UserRecord = await insertUser({
-                wallet: result.data.address,
-              });
-            }*/
 
           return null;
         } catch (e) {
