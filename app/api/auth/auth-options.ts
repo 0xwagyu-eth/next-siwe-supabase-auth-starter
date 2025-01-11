@@ -75,7 +75,7 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials, req) {
-        console.log("test test");
+        console.log("START AUTHORIZE");
         const pubClient = createPublicClient({
           name: "Base",
           // @ts-ignore: Some Type error no idea
@@ -89,6 +89,8 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          console.log("credentials", credentials);
+
           const siwe = new SiweMessage(
             JSON.parse(credentials.message) as SiweMessage
           );
@@ -98,6 +100,8 @@ export const authOptions: NextAuthOptions = {
           const nonceCsrf = await getCsrfToken({
             req: { headers: req.headers },
           });
+
+          console.log("nonceCsrf", nonceCsrf);
 
           const isValid = await pubClient.verifySiweMessage({
             address: siwe.address as `0x${string}`,
