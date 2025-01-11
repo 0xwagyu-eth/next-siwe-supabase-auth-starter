@@ -1,18 +1,14 @@
+import { createClient } from "@supabase/supabase-js";
 import { NextAuthOptions } from "next-auth";
 import { Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getCsrfToken } from "next-auth/react";
 import { SiweMessage } from "siwe";
-import { generateSiweNonce, validateSiweMessage } from "viem/siwe";
-import { createClient } from "@supabase/supabase-js";
 
 import { SupabaseAdapter } from "@auth/supabase-adapter";
-import { useAccount } from "wagmi";
 
 import { createPublicClient, http } from "viem";
-import { mainnet, base } from "viem/chains";
-
-//import { insertUser, getUserByWallet } from "@/db/operations/templateuser";
+import { base } from "viem/chains";
 
 const supabase = createClient(
   process.env.SUPABASE_URL ?? "",

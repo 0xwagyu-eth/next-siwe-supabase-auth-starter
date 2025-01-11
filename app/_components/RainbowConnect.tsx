@@ -11,9 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Wallet } from "lucide-react"; // Assuming you're using lucide-react for icons
+import { Wallet } from "lucide-react"; 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { formatEthAddress } from "@/lib/utils"; // You'll need to move/create this utility
+import { formatEthAddress } from "@/lib/utils"; 
 
 export default function RainbowConnect() {
   const session = useSession();
