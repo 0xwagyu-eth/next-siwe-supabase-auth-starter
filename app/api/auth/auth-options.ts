@@ -119,9 +119,12 @@ export const authOptions: NextAuthOptions = {
 
             if (userExistsData && userExistsData.length > 0) {
               console.log("User exists in database", userExistsData[0]);
+              const userData = userExistsData[0];
               return {
-                //chainId, address, userId
-                id: `eip155:${base.id}:${siwe.address}:${userExistsData[0].id}`,
+                id: `eip155:${base.id}:${siwe.address}:${userData.id}`,
+                name: userData.name,
+                email: userData.email,
+                userData: userData // Pass the full user data
               };
             }
             if (!userExistsData || userExistsData.length < 1) {
@@ -134,18 +137,15 @@ export const authOptions: NextAuthOptions = {
                 nonceCsrf
               );
 
-              //You could also add address to the user table here if you want to; 
-              //otherwise you can just set later
-
-              //return null if no user has been created
               if (!userId || !address) {
                 console.log("No userId or address; returning null.");
                 return null;
               }
 
               return {
-                //chainId, address, userId
                 id: `eip155:${base.id}:${address}:${userId}`,
+                name: address,
+                email: `${address}@placeholder.com`,
               };
             }
           }
@@ -167,6 +167,14 @@ export const authOptions: NextAuthOptions = {
     signIn: "/",
   },
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.name = user.name;
+        token.email = user.email;
+        token.userData = (user as any).userData;
+      }
+      return token;
+    },
     async session({ session, token }: { session: any; token: any }) {
       console.log("\n CALLBACKS SESSION \n", session, token);
       if (!token.sub) {
@@ -179,6 +187,19 @@ export const authOptions: NextAuthOptions = {
       session.address = address;
       session.chainId = chainId;
       session.userId = userId;
+      
+      // Set the user object properties from token
+      session.user = {
+        ...session.user,
+        name: token.name || address,
+        email: token.email || `${address}@placeholder.com`,
+      };
+      
+      // Add any additional user data
+      if (token.userData) {
+        session.userData = token.userData;
+      }
+      
       return session;
     },
   },

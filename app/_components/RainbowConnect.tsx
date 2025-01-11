@@ -81,7 +81,7 @@ export default function RainbowConnect() {
                         </span>
                         <Avatar className="h-5 w-5">
                           <AvatarImage
-                            src={"https://i.seadn.io/s/raw/files/469b3e5d68a998340037173c9ea6317c.png?auto=format&dpr=1&w=1000"
+                            src={session?.data?.user?.image || "https://i.seadn.io/s/raw/files/469b3e5d68a998340037173c9ea6317c.png?auto=format&dpr=1&w=1000"
                             }
                             alt="Profile"
                           />
@@ -98,14 +98,14 @@ export default function RainbowConnect() {
                         <Link href={`/user/${'userProfile'}`} className="flex items-start gap-2 p-2">
                           <Avatar className="h-8 w-8">
                             <AvatarImage
-                              src={"https://i.seadn.io/s/raw/files/469b3e5d68a998340037173c9ea6317c.png?auto=format&dpr=1&w=1000"
+                              src={session?.data?.user?.image || "https://i.seadn.io/s/raw/files/469b3e5d68a998340037173c9ea6317c.png?auto=format&dpr=1&w=1000"
                               }
                               alt="Profile"
                             />
                           </Avatar>
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-sm">{'alias'}</span>
-                            <span className="text-xs">{formatEthAddress('0x')}</span>
+                            <span className="text-sm">{session?.data?.user?.name || 'Friend'}</span>
+                            <span className="text-xs">{formatEthAddress(account.address || '0x')}</span>
                             <span className="text-xs">
                               {account.displayBalance
                                 ? ` (${account.displayBalance})`
